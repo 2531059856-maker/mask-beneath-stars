@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>《星辰之下的假面》在线阅读</title>
+  <style>
+    :root { color-scheme: dark; }
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background:#171717; color:#eee;
+      font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    }
+    main{
+      width:min(680px,calc(100% - 32px)); padding:32px;
+      border:1px solid #6e5a2d; border-radius:12px;
+      background:#222; box-shadow:0 12px 40px rgba(0,0,0,.35);
+    }
+    h1{margin:0 0 8px;color:#d9a441;font-size:28px}
+    p{line-height:1.7;color:#d6d6d6}
+    button,a.button{
+      display:inline-block; margin-top:12px; padding:12px 18px;
+      border-radius:8px; border:1px solid #b58a35;
+      background:#7c5a18; color:white; font-weight:700;
+      text-decoration:none; cursor:pointer;
+    }
+    button:hover,a.button:hover{filter:brightness(1.12)}
+    #status{margin-top:18px;min-height:1.8em;color:#e5c270}
+    .small{font-size:13px;color:#aaa}
+    .fallback{margin-top:22px;padding-top:18px;border-top:1px solid #444}
+    .fallback a{color:#8fc5ff}
+  </style>
+</head>
+<body>
+<main>
+  <h1>《星辰之下的假面》</h1>
+  <p>点击一次即可先让 5etools 加载本模组的 Homebrew，再自动进入冒险正文。</p>
+
+  <button id="launch">进入模组</button>
+  <div id="status"></div>
+
+  <div class="fallback">
+    <p class="small">如果浏览器阻止弹窗，或网络较慢导致自动跳转失败，可按下面两步手动进入：</p>
+    <p class="small">
+      ① <a target="_blank" rel="noopener"
+      href="https://5e.kiwee.top/index.html#blankhash,loadexthomebrew:maskbeneathstars">先加载模组</a><br>
+      ② <a target="_blank" rel="noopener"
+      href="https://5e.kiwee.top/adventure.html#mbs">再打开正文</a>
+    </p>
+  </div>
+</main>
+
+<script>
+(() => {
+  const LOAD_URL = "https://5e.kiwee.top/index.html#blankhash,loadexthomebrew:maskbeneathstars";
+  const ADVENTURE_URL = "https://5e.kiwee.top/adventure.html#mbs";
+  const WAIT_MS = 6500;
+
+  const btn = document.getElementById("launch");
+  const status = document.getElementById("status");
+
+  btn.addEventListener("click", () => {
+    // Open synchronously from the user click so normal popup blockers are less likely to block it.
+    const win = window.open(LOAD_URL, "_blank");
+
+    if (!win) {
+      status.textContent = "浏览器阻止了新窗口。请允许弹窗，或使用下方两步链接。";
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = "正在加载 Homebrew…";
+
+    let left = Math.ceil(WAIT_MS / 1000);
+    const timer = setInterval(() => {
+      left -= 1;
+      if (left > 0) status.textContent = `正在加载 Homebrew… 约 ${left} 秒后进入正文`;
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(timer);
+      status.textContent = "正在进入《星辰之下的假面》…";
+      try {
+        // A page may navigate a popup it opened even when the popup is cross-origin.
+        win.location.href = ADVENTURE_URL;
+        win.focus();
+      } catch (e) {
+        status.textContent = "自动跳转失败，请使用下方“再打开正文”链接。";
+      }
+      btn.disabled = false;
+    }, WAIT_MS);
+  });
+})();
+</script>
+</body>
+</html>
